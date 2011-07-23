@@ -15,7 +15,7 @@ orianne::ftp_server::ftp_server(boost::asio::io_service& io_service)
 struct connection_handler : boost::enable_shared_from_this<connection_handler> {
 
 	explicit connection_handler(boost::asio::io_service& service)
-		: socket(service), session(service), console(session)
+		: socket(service), session(service, socket), console(session)
 	{
 		session.set_root_directory(boost::filesystem::initial_path());
 	}

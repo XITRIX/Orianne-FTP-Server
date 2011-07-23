@@ -29,11 +29,13 @@ struct ftp_result {
 class ftp_session {
 	boost::asio::io_service& io_service;
 	boost::asio::ip::tcp::acceptor* acceptor;
+	boost::asio::ip::tcp::socket& socket;
+
 	boost::filesystem::path root_directory;
 	boost::filesystem::path working_directory;
 
 public:
-	explicit ftp_session(boost::asio::io_service&);
+	explicit ftp_session(boost::asio::io_service&, boost::asio::ip::tcp::socket& socket);
 
 	void set_root_directory(const boost::filesystem::path& root_directory);
 

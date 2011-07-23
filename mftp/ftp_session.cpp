@@ -9,8 +9,8 @@
 
 using boost::asio::ip::tcp;
 
-orianne::ftp_session::ftp_session(boost::asio::io_service& _service) 
-	: io_service(_service), acceptor(0), working_directory("/")
+orianne::ftp_session::ftp_session(boost::asio::io_service& _service, boost::asio::ip::tcp::socket& socket_) 
+	: io_service(_service), acceptor(0), working_directory("/"), socket(socket_)
 {
 }
 
@@ -26,28 +26,24 @@ orianne::ftp_result orianne::ftp_session::set_password(const std::string& userna
 	return orianne::ftp_result(230, "Login successful.");
 }
 
-static std::string endpoint_to_string(tcp::endpoint endpoint) {
-	//boost::asio::ip::address_v4::bytes_type addr = endpoint.address().to_v4().to_bytes();
-	// TODO: make something that actually works
-	unsigned char addr[] = {127, 0, 0, 1};
-	
-	unsigned short port = endpoint.port();
-
+static std::string endpoint_to_string(boost::array<unsigned char, 4> address, unsigned short port) {
 	std::stringstream stream;
 	stream << "(";
 	for(int i=0; i<4; i++) 
-		stream << (int)addr[i] << ",";
+		stream << (int)address[i] << ",";
 	stream << ((port >> 8) & 0xff) << "," << (port & 0xff) << ")";
 
 	return stream.str();
 }
 
 orianne::ftp_result orianne::ftp_session::set_passive() {
+	static unsigned short port = 10000;
+
 	if(acceptor == 0)
-		acceptor = new tcp::acceptor(io_service, tcp::endpoint(tcp::v4(), 10000));
+		acceptor = new tcp::acceptor(io_service, tcp::endpoint(tcp::v4(), ++port));
 	
 	std::string tmp_message = "Entering passive mode ";
-	tmp_message.append(endpoint_to_string(acceptor->local_endpoint()));
+	tmp_message.append(endpoint_to_string(socket.local_endpoint().address().to_v4().to_bytes(), port));
 
 	return orianne::ftp_result (227, tmp_message);
 }
