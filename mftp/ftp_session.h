@@ -29,13 +29,13 @@ struct ftp_result {
 class ftp_session {
 	boost::asio::io_service& io_service;
 	boost::asio::ip::tcp::acceptor* acceptor;
-	std::string root_directory;
-	std::string working_directory;
+	boost::filesystem::path root_directory;
+	boost::filesystem::path working_directory;
 
 public:
 	explicit ftp_session(boost::asio::io_service&);
 
-	void set_root_directory(const std::string& root_directory);
+	void set_root_directory(const boost::filesystem::path& root_directory);
 
 	ftp_result set_username(const std::string& username);
 	ftp_result set_password(const std::string& password);

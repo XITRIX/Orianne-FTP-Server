@@ -10,8 +10,12 @@
 using boost::asio::ip::tcp;
 
 orianne::ftp_session::ftp_session(boost::asio::io_service& _service) 
-	: io_service(_service), acceptor(0)
+	: io_service(_service), acceptor(0), working_directory("/")
 {
+}
+
+void orianne::ftp_session::set_root_directory(boost::filesystem::path const& directory) {
+	root_directory = directory;
 }
 
 orianne::ftp_result orianne::ftp_session::set_username(const std::string& username) {
@@ -49,16 +53,14 @@ orianne::ftp_result orianne::ftp_session::set_passive() {
 }
 
 orianne::ftp_result orianne::ftp_session::get_size(const std::string& filename) {
-	std::string path("E:/");
-	path.append(filename);
-
 	std::stringstream stream;
-	stream << boost::filesystem::file_size(path);
+	stream << boost::filesystem::file_size(root_directory / working_directory / filename);
 
 	return orianne::ftp_result(213, stream.str());
 }
 
 orianne::ftp_result orianne::ftp_session::change_working_directory(const std::string& new_directory) {
+	working_directory.assign(new_directory, boost::filesystem::path::codecvt());
 	return orianne::ftp_result(250, "OK");
 }
 
@@ -67,18 +69,16 @@ orianne::ftp_result orianne::ftp_session::set_type(const struct orianne::ftp_tra
 }
 
 orianne::ftp_result orianne::ftp_session::get_working_directory() {
-	return orianne::ftp_result(257, "\"/\"");
+	return orianne::ftp_result(257, working_directory.string());
 }
 
 orianne::ftp_result orianne::ftp_session::get_system() {
 	return orianne::ftp_result(215, "WINDOWS");
 }
 
-static std::string get_list() {
+static std::string get_list(const boost::filesystem::path& path) {
 	using namespace boost::filesystem;
 	std::stringstream stream;
-
-	path path("E:/");
 
 	for(directory_iterator it(path); it != directory_iterator(); it++) {
 		bool dir = is_directory(it->path());
@@ -136,6 +136,12 @@ struct dir_list_dumper : dumper<dir_list_dumper> {
 	}
 };
 
+void orianne::ftp_session::list(boost::function<void (const orianne::ftp_result&)> cb) {
+	boost::shared_ptr<dir_list_dumper> dumper = dir_list_dumper::create(cb, io_service);
+	dumper->set_data(get_list(root_directory / working_directory));
+	dumper->async_wait(*acceptor);
+}
+
 struct file_dumper : dumper<file_dumper> {
 	std::ifstream stream;
 	char buffer[1024];
@@ -176,19 +182,12 @@ struct file_dumper : dumper<file_dumper> {
 	}
 };
 
-void orianne::ftp_session::list(boost::function<void (const orianne::ftp_result&)> cb) {
-	boost::shared_ptr<dir_list_dumper> dumper = dir_list_dumper::create(cb, io_service);
-	dumper->set_data(get_list());
-	dumper->async_wait(*acceptor);
-}
-
 void orianne::ftp_session::retrieve(const std::string& filename, boost::function<void (const orianne::ftp_result&)> cb) {
-	std::string path("E:\\");
-	path.append(filename);
+	boost::filesystem::path path = root_directory / working_directory / filename;
 	
-	std::cout << "Opening " << path << " for download" << std::endl;
+	std::cout << "Opening " << path.make_preferred() << " for download" << std::endl;
 
-	boost::shared_ptr<file_dumper> dumper = file_dumper::create(cb, io_service, path);
+	boost::shared_ptr<file_dumper> dumper = file_dumper::create(cb, io_service, path.make_preferred().string());
 	dumper->async_wait(*acceptor);
 }
 
