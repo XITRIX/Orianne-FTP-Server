@@ -1,0 +1,8 @@
+*Debug
+ipch
+
+*.sdf
+*.suo
+*.aps
+*.filters
+*.user
