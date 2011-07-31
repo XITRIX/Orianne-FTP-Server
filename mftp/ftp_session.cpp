@@ -104,7 +104,7 @@ template<typename T> struct dumper : boost::enable_shared_from_this<T> {
 
 	void async_wait(boost::asio::ip::tcp::acceptor& acceptor) {
 		acceptor.async_accept(socket,
-			boost::bind(&T::handle_connect, shared_from_this()));
+			boost::bind(&T::handle_connect, this->shared_from_this()));
 	}
 };
 
