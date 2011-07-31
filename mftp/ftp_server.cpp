@@ -91,7 +91,7 @@ void orianne::ftp_server::start() {
 	cout << "start()" << endl;
 
 	connection_handler::ptr handler =
-		connection_handler::create(acceptor.io_service());
+		connection_handler::create(acceptor.get_io_service());
 	boost::shared_ptr<connection_handler>& sptr(handler);
 
 	acceptor.async_accept(handler->socket,

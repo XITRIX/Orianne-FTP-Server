@@ -144,7 +144,7 @@ struct file_dumper : dumper<file_dumper> {
 	boost::asio::mutable_buffers_1 m_buffer;
 
 	explicit file_dumper(boost::function<void (const orianne::ftp_result&)> cb, boost::asio::io_service& service, const std::string& path)
-		: dumper(cb, service), stream(path, std::ios::in | std::ios::binary), m_buffer(buffer, 1024)
+		: dumper(cb, service), stream(path.c_str(), std::ios::in | std::ios::binary), m_buffer(buffer, 1024)
 	{
 	}
 

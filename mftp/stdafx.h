@@ -1,6 +1,9 @@
 #pragma once
 
+#ifdef _WIN32
 #include <SDKDDKVer.h>
+#include <tchar.h>
+#endif /* _WIN32 */
 
 #include <string>
 #include <iostream>
@@ -12,4 +15,4 @@
 #include <boost/enable_shared_from_this.hpp>
 
 #include <stdio.h>
-#include <tchar.h>
+
