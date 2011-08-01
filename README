@@ -5,5 +5,13 @@ Orianne is a minimal FTP server running on Windows and UNIX flavours. It is self
 
 Simply start it and it serves the current working directory read-only.
 
-Orianne has been written in full C++ using boost. Currently, only VS2010 configuration files and binaries
-are available. Unix makefiles are to be added soon.
+Orianne has been written in full C++ using boost. 
+
+Building
+========
+
+Compilation has been tested under VS2010, gcc and clang.
+To compile, you will need boost >= 1.46.1.
+
+For Visual Studio users, simply open the mftp.sln file.
+Unix users can use the Makefile in the mftp directory. Simply change to CC variable to switch compilers.
