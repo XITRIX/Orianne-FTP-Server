@@ -26,7 +26,7 @@ orianne::ftp_result orianne::ftp_session::set_password(const std::string& userna
 	return orianne::ftp_result(230, "Login successful.");
 }
 
-static std::string endpoint_to_string(boost::array<unsigned char, 4> address, unsigned short port) {
+static std::string endpoint_to_string(boost::asio::ip::address_v4::bytes_type address, unsigned short port) {
 	std::stringstream stream;
 	stream << "(";
 	for(int i=0; i<4; i++) 
