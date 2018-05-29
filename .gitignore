@@ -6,3 +6,6 @@ ipch
 *.aps
 *.filters
 *.user
+.DS_Store
+FTP.xcodeproj/project.xcworkspace/xcuserdata/xitrix.xcuserdatad/UserInterfaceState.xcuserstate
+*.xcuserstate

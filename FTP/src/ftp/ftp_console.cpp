@@ -59,10 +59,29 @@ void orianne::ftp_console::read_line(const std::string& mesg) {
 	} else if (command == "RETR") {
 		session.retrieve(mesg.substr(5, mesg.length() - 6), boost::bind(&write_result, _1, write_message));
 		return;
+	} else if (command == "STOR") {
+		session.store(mesg.substr(5, mesg.length() - 6), boost::bind(&write_result, _1, write_message));
+		return;
 	} else if (command == "CWD") {
 		std::string directory = stream.str().erase(0, command.length() + 1);
 		directory.pop_back();
 		result = session.change_working_directory(directory);
+	} else if (command == "MKD") {
+		std::string directory = stream.str().erase(0, command.length() + 1);
+		directory.pop_back();
+		result = session.create_new_directory(directory);
+	} else if (command == "RMD" || command == "DELE") {
+		std::string directory = stream.str().erase(0, command.length() + 1);
+		directory.pop_back();
+		result = session.remove_directory(directory);
+	} else if (command == "RNFR") {
+		std::string directory = stream.str().erase(0, command.length() + 1);
+		directory.pop_back();
+		result = session.rename_file_from(directory);
+	} else if (command == "RNTO") {
+		std::string directory = stream.str().erase(0, command.length() + 1);
+		directory.pop_back();
+		result = session.rename_file_to(directory);
 	} else {
 		result.code = 500;
 		result.message = "Syntax Error.";
